@@ -7,7 +7,6 @@ android {
     namespace = "ro.lupaocr.app"
     compileSdk = 36
 
-
     defaultConfig {
         applicationId = "ro.lupaocr.app"
         minSdk = 23
@@ -37,16 +36,17 @@ android {
 }
 
 dependencies {
-    implementation("androidx.core:core-ktx:1.19.0")
-    implementation("androidx.activity:activity-ktx:1.13.0")
+    implementation("androidx.core:core-ktx:1.17.0")
+    implementation("androidx.activity:activity-ktx:1.11.0")
 
     val cameraX = "1.6.1"
+
     implementation("androidx.camera:camera-core:$cameraX")
     implementation("androidx.camera:camera-camera2:$cameraX")
     implementation("androidx.camera:camera-lifecycle:$cameraX")
     implementation("androidx.camera:camera-view:$cameraX")
     implementation("androidx.camera:camera-mlkit-vision:$cameraX")
 
-    // Bundled OCR model: available immediately and usable offline.
+    // OCR inclus în aplicație pentru funcționare offline
     implementation("com.google.mlkit:text-recognition:16.0.1")
 }
