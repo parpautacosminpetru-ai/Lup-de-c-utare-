@@ -58,7 +58,7 @@ Modelul OCR inclus aici este modelul ML Kit pentru **scriere latină**, potrivit
 
 ## Compilare APK
 
-Proiectul este pregătit pentru Android Studio / Gradle, cu `compileSdk 36`, `minSdk 23` și `targetSdk 36`.
+Proiectul este pregătit pentru Android Studio / Gradle, cu `compileSdk 37`, `minSdk 23` și `targetSdk 37`.
 
 1. Deschide folderul `LupaOCR` în Android Studio.
 2. Lasă Gradle să descarce dependențele la prima compilare.
