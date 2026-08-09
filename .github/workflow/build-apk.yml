@@ -2,7 +2,6 @@ name: Build APK
 
 on:
   workflow_dispatch:
-  push:
 
 permissions:
   contents: read
@@ -14,12 +13,6 @@ jobs:
     steps:
       - name: Get project
         uses: actions/checkout@v6
-
-      - name: Unzip project
-        run: |
-          mkdir extracted
-          ZIP=$(find . -maxdepth 1 -name "*.zip" | head -n 1)
-          unzip -q "$ZIP" -d extracted
 
       - name: Set up Java
         uses: actions/setup-java@v5
@@ -38,17 +31,46 @@ jobs:
           if [ ! -x "$SDKMANAGER" ]; then
             SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
           fi
+
           yes | "$SDKMANAGER" --licenses >/dev/null || true
-          "$SDKMANAGER" "platforms;android-37" "build-tools;37.0.0"
+          "$SDKMANAGER" "platforms;android-36" "build-tools;36.0.0"
+
+      - name: Prepare project
+        run: |
+          SETTINGS="$(find . -type f -name "settings.gradle.kts" -not -path "./.git/*" | head -n 1)"
+
+          if [ -z "$SETTINGS" ]; then
+            echo "ERROR: settings.gradle.kts not found"
+            exit 1
+          fi
+
+          PROJECT_DIR="$(dirname "$SETTINGS")"
+          echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_ENV"
+
+          APP_GRADLE="$PROJECT_DIR/app/build.gradle.kts"
+
+          if [ ! -f "$APP_GRADLE" ]; then
+            echo "ERROR: app/build.gradle.kts not found"
+            exit 1
+          fi
+
+          sed -i -E 's/compileSdk = [0-9]+/compileSdk = 36/' "$APP_GRADLE"
+          sed -i -E 's/targetSdk = [0-9]+/targetSdk = 36/' "$APP_GRADLE"
+
+          sed -i -E 's#androidx.core:core-ktx:[^"]+#androidx.core:core-ktx:1.17.0#' "$APP_GRADLE"
+          sed -i -E 's#androidx.activity:activity-ktx:[^"]+#androidx.activity:activity-ktx:1.12.4#' "$APP_GRADLE"
+
+          echo "Building project from: $PROJECT_DIR"
+          grep -E 'compileSdk|targetSdk|core-ktx|activity-ktx' "$APP_GRADLE"
 
       - name: Build Lupa APK
         run: |
-          cd extracted/LupaOCR
+          cd "$PROJECT_DIR"
           gradle --no-daemon :app:assembleDebug
 
       - name: Save APK
         uses: actions/upload-artifact@v4
         with:
           name: Lupa-OCR-APK
-          path: extracted/LupaOCR/app/build/outputs/apk/debug/app-debug.apk
+          path: "**/app/build/outputs/apk/debug/app-debug.apk"
           if-no-files-found: error
