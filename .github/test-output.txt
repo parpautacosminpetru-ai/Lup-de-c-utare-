@@ -1,0 +1,7 @@
+OK: prefix matches inflection
+OK: diacritics ignored
+OK: exact rejects longer form
+OK: contains works
+OK: character limit truncates query in prefix mode
+OK: literal phrase
+OK: list keeps unrelated terms

@@ -1,0 +1,14 @@
+Lupa OCR v0.1 — verificare motor de potrivire
+
+Testele Kotlin/JVM au trecut pentru:
+- prefix pe formă flexionată: univers -> universității
+- ignorare diacritice
+- mod exact
+- mod conține
+- limită N caractere
+- expresie literală
+- listă cu termeni independenți și eliminarea duplicatelor
+
+Comanda folosită:
+kotlinc app/src/main/java/ro/lupaocr/app/KeywordMatcher.kt core-test/MatcherTest.kt -include-runtime -d core-test/matcher-tests.jar
+java -jar core-test/matcher-tests.jar
