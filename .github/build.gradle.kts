@@ -5,7 +5,8 @@ plugins {
 
 android {
     namespace = "ro.lupaocr.app"
-    compileSdk = 36
+    compileSdk = 37
+
 
     defaultConfig {
         applicationId = "ro.lupaocr.app"
