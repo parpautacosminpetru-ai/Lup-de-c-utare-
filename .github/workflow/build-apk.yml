@@ -28,49 +28,40 @@ jobs:
       - name: Install Android SDK
         run: |
           SDKMANAGER="$ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager"
+
           if [ ! -x "$SDKMANAGER" ]; then
             SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
           fi
 
           yes | "$SDKMANAGER" --licenses >/dev/null || true
-          "$SDKMANAGER" "platforms;android-36" "build-tools;36.0.0"
 
-      - name: Prepare project
+          "$SDKMANAGER" \
+            "platform-tools" \
+            "platforms;android-36" \
+            "build-tools;36.0.0"
+
+      - name: Verify LupaOCR project
         run: |
-          SETTINGS="$(find . -type f -name "settings.gradle.kts" -not -path "./.git/*" | head -n 1)"
+          echo "Repository contents:"
+          ls -la
 
-          if [ -z "$SETTINGS" ]; then
-            echo "ERROR: settings.gradle.kts not found"
-            exit 1
-          fi
+          echo "LupaOCR contents:"
+          ls -la LupaOCR
 
-          PROJECT_DIR="$(dirname "$SETTINGS")"
-          echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_ENV"
+          test -f "LupaOCR/settings.gradle.kts"
+          test -f "LupaOCR/app/build.gradle.kts"
 
-          APP_GRADLE="$PROJECT_DIR/app/build.gradle.kts"
-
-          if [ ! -f "$APP_GRADLE" ]; then
-            echo "ERROR: app/build.gradle.kts not found"
-            exit 1
-          fi
-
-          sed -i -E 's/compileSdk = [0-9]+/compileSdk = 36/' "$APP_GRADLE"
-          sed -i -E 's/targetSdk = [0-9]+/targetSdk = 36/' "$APP_GRADLE"
-
-          sed -i -E 's#androidx.core:core-ktx:[^"]+#androidx.core:core-ktx:1.17.0#' "$APP_GRADLE"
-          sed -i -E 's#androidx.activity:activity-ktx:[^"]+#androidx.activity:activity-ktx:1.12.4#' "$APP_GRADLE"
-
-          echo "Building project from: $PROJECT_DIR"
-          grep -E 'compileSdk|targetSdk|core-ktx|activity-ktx' "$APP_GRADLE"
+          echo "LupaOCR project found successfully."
 
       - name: Build Lupa APK
+        working-directory: ./LupaOCR
         run: |
-          cd "$PROJECT_DIR"
+          gradle --version
           gradle --no-daemon :app:assembleDebug
 
       - name: Save APK
         uses: actions/upload-artifact@v4
         with:
           name: Lupa-OCR-APK
-          path: "**/app/build/outputs/apk/debug/app-debug.apk"
+          path: LupaOCR/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
